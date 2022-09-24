@@ -31,13 +31,9 @@ class QuizModel {
   static bool _boolFromString(String value) => value == 'true';
   static String _boolToString(bool value) => value? 'true' : 'false';
 
-  static Map<String, bool> _boolMapFromStringMap(Map<dynamic, dynamic> value) {
-    final newMap = Map<String, String>.from(value);
-    return newMap.map((key, value) => MapEntry(key, value == 'true'));
-  }
+  static Map<String, bool> _boolMapFromStringMap(Map<dynamic, dynamic> value) 
+    => value.map((key, value) => MapEntry(key, value == 'true'));
 
-  static Map<String, String> _boolMapToStringMap(Map<String, bool> value) {
-    final newMap = Map<String, bool>.from(value);
-    return newMap.map((key, value) => MapEntry(key, value? 'true' : 'false'));
-  }
+  static Map<String, String> _boolMapToStringMap(Map<String, bool> value)
+    => value.map((key, value) => MapEntry(key, value? 'true' : 'false'));
 }

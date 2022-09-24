@@ -29,6 +29,8 @@ class _HomePageState extends State<HomePage> {
     }
 
     setState(() => quizzes = quizResponse.value);
+
+    QuizApi.getCategories().then((value) => print(value.value?[0].questionsCount));
   }
 
   @override
