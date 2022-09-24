@@ -6,14 +6,15 @@ import 'package:quiz_app/base/request_result.dart';
 import 'package:quiz_app/models/quiz/quiz_model.dart';
 
 class QuizApi {
+  // static const apiKey = 'j24WhINsXuMG7PszLmbkLHqRiXRoFnjRZrHxkwDa'; 401 unauthorized
   static const apiKey = 'j24WhINsXuMG7PszLmbkLHqRiXRoFnjRZrHxkwDa';
 
-  static Future<RequestResult<QuizModel>> getQuiz() async {
+  static Future<RequestResult< List<QuizModel> >> getQuizzes() async {
     try {
         final response = await http.get(
-          Uri.parse('https://quizapi.io/api/v1/questions'),
+          Uri.parse('https://quizapi.io/api/v1/questions?limit=1'),
           headers: {
-            'apiKey': apiKey,
+            'X-Api-Key': apiKey,
           }
         );
 
@@ -21,10 +22,18 @@ class QuizApi {
           throw Exception('status code: ${response.statusCode}');
         }
 
-        final json = jsonDecode(response.body);
-        final quizModel = QuizModel.fromJson(json);
+        final body = jsonDecode(response.body);
+        final quizesList = List.from(body);
+        print(body);
 
-        return RequestResult(true, value: quizModel);
+        final quizzes = <QuizModel>[];
+        for (var element in quizesList) {
+          quizzes.add(QuizModel.fromJson(element));
+        }
+
+        
+
+        return RequestResult(true, value: quizzes);
     } catch(e) {
       LogService.logError(e.toString());
       return RequestResult(false);

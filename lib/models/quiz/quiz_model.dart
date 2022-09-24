@@ -4,22 +4,40 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'quiz_model.g.dart';
 
+
 @JsonSerializable()
 class QuizModel {
   final int id;
   final String question;
+  final String? description;
   final Map<String, String?> answers;
-  final bool multiple_correct_answers;
-  final Map<String, String?> correct_answers;
-  final String explanation;
-  final String tip;
-  final List<String> tags;
+  final String? explanation;
+  final String? tip;
+  // final List<String> tags;
   final String category;
   final String difficulty;
+
+  @JsonKey(fromJson: _boolFromString, toJson: _boolToString)
+  final bool multiple_correct_answers;
+
+  @JsonKey(fromJson: _boolMapFromStringMap, toJson: _boolMapToStringMap)
+  final Map<String, bool> correct_answers;
   
-  QuizModel(this.id, this.question, this.answers, this.multiple_correct_answers, this.correct_answers, this.explanation, this.tip, this.tags, this.category, this.difficulty);
+  QuizModel(this.id, this.question, this.description, this.answers, this.explanation, this.tip, this.category, this.difficulty, this.multiple_correct_answers, this.correct_answers);
 
   factory QuizModel.fromJson(Map<String, dynamic> json) => _$QuizModelFromJson(json);
-  
   Map<String, dynamic> toJson() => _$QuizModelToJson(this);
+
+  static bool _boolFromString(String value) => value == 'true';
+  static String _boolToString(bool value) => value? 'true' : 'false';
+
+  static Map<String, bool> _boolMapFromStringMap(Map<dynamic, dynamic> value) {
+    final newMap = Map<String, String>.from(value);
+    return newMap.map((key, value) => MapEntry(key, value == 'true'));
+  }
+
+  static Map<String, String> _boolMapToStringMap(Map<String, bool> value) {
+    final newMap = Map<String, bool>.from(value);
+    return newMap.map((key, value) => MapEntry(key, value? 'true' : 'false'));
+  }
 }
