@@ -35,7 +35,20 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Quiz App')),
+      appBar: AppBar(
+        title: const Text('Quiz App'), 
+        leading: Container(
+          margin: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+          ),
+          child: const Icon(
+            Icons.question_mark, 
+            color: Colors.white,
+          ),
+        )
+      ),
       body: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
