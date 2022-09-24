@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/api/quiz_api.dart';
-import 'package:quiz_app/models/quiz/quiz_model.dart';
+import 'package:quiz_app/models/quiz_category/quiz_category_model.dart';
+import 'package:quiz_app/widgets/quiz_category_card_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,7 +11,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<QuizModel>? quizzes;
+  List<QuizCategoryModel>? quizCategories;
   bool isLoading = false;
 
   @override
@@ -21,32 +22,52 @@ class _HomePageState extends State<HomePage> {
 
   void loadQuiz() async {
     setState(() => isLoading = true);
-    final quizResponse  = await QuizApi.getQuizzes();
+    final quizResponse  = await QuizApi.getCategories();
     setState(() => isLoading = false);
 
     if (!quizResponse.result) {
       return;
     }
 
-    setState(() => quizzes = quizResponse.value);
-
-    QuizApi.getCategories().then((value) => print(value.value?[0].questionsCount));
+    setState(() => quizCategories = quizResponse.value);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          children: [
-            const Text('Test'),
-            if (isLoading)
-              const CircularProgressIndicator(value: 18),
-            if (quizzes != null)
-              Text(quizzes!.length.toString()),
-          ]
-        ),
-      ),
+      appBar: AppBar(title: const Text('Quiz App')),
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              children: [
+                const Text('Choose your test'),
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: isLoading
+                    ? null
+                    : loadQuiz, 
+                  child: const Text('Reload')
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: isLoading
+              ? const Center(child: CircularProgressIndicator(strokeWidth: 10))
+              : ListView.builder(
+                  itemCount: quizCategories!.length,
+                  itemBuilder: (BuildContext context, int index) => 
+                    QuizCategoryCardWidget(
+                      quizCategory: quizCategories![index],
+                      onClicked: (name) => print(name),
+                    ),
+                ),
+          )
+        ],
+      )
     );
   }
 }
