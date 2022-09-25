@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/api/quiz_api.dart';
 import 'package:quiz_app/models/quiz_category/quiz_category_model.dart';
+import 'package:quiz_app/widgets/quiz_appbar.dart';
 import 'package:quiz_app/widgets/quiz_category_card_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,42 +14,48 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<QuizCategoryModel>? quizCategories;
   bool isLoading = false;
+  bool isError = false;
 
   @override
   void initState() {
     super.initState();
-    loadQuiz();
+    loadCategories();
   }
 
-  void loadQuiz() async {
-    setState(() => isLoading = true);
+  void loadCategories() async {
+    setState(() {
+      isLoading = true;
+      isError = false;
+    });
     final quizResponse  = await QuizApi.getCategories();
     setState(() => isLoading = false);
 
     if (!quizResponse.result) {
+      setState(() => isError = true);
       return;
     }
 
     setState(() => quizCategories = quizResponse.value);
   }
 
+  void onCategoryClicked(QuizCategoryModel category) {
+    Navigator.of(context).pushNamed('/quiz', arguments: {
+      'category': category,
+      'difficulty': 'easy',
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Quiz App'), 
-        leading: Container(
-          margin: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2),
-          ),
-          child: const Icon(
-            Icons.question_mark, 
-            color: Colors.white,
-          ),
-        )
+    final categoryWidgets = (quizCategories ?? []).map<Widget>(
+      (e) => QuizCategoryCardWidget(
+        quizCategory: e,
+        onClicked: onCategoryClicked,
       ),
+    ).toList();
+
+    return Scaffold(
+      appBar: const QuizAppbar(),
       body: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
@@ -61,23 +68,34 @@ class _HomePageState extends State<HomePage> {
                 ElevatedButton(
                   onPressed: isLoading
                     ? null
-                    : loadQuiz, 
+                    : loadCategories, 
                   child: const Text('Reload')
                 ),
               ],
             ),
           ),
           Expanded(
-            child: isLoading
-              ? const Center(child: CircularProgressIndicator(strokeWidth: 10))
-              : ListView.builder(
-                  itemCount: quizCategories!.length,
-                  itemBuilder: (BuildContext context, int index) => 
-                    QuizCategoryCardWidget(
-                      quizCategory: quizCategories![index],
-                      onClicked: (name) => print(name),
-                    ),
-                ),
+            child: isError
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.error, color: Colors.red),
+                      Text('An issue occured'),
+                    ],
+                  )
+                )
+              : isLoading
+                ? const Center(child: CircularProgressIndicator(strokeWidth: 10))
+                // : ListView.builder(
+                //     itemCount: quizCategories!.length,
+                //     itemBuilder: (BuildContext context, int index) => 
+                //       QuizCategoryCardWidget(
+                //         quizCategory: quizCategories![index],
+                //         onClicked: onCategoryClicked,
+                //       ),
+                //   ),
+                : Wrap(children: categoryWidgets)
           )
         ],
       )

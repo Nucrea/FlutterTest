@@ -17,6 +17,7 @@ class QuizApi {
 
   static Future<RequestResult<List<QuizModel>>> getQuizzes({
     int? limit,
+    String? difficulty,
     String? category,
   }) async {
     try {
@@ -26,6 +27,9 @@ class QuizApi {
       }
       if (category != null) {
         params['category'] = category;
+      }
+      if (difficulty != null) {
+        params['difficulty'] = difficulty;
       }
 
       final response = await http.get(
@@ -44,8 +48,6 @@ class QuizApi {
       for (var element in quizesList) {
         quizzes.add(QuizModel.fromJson(element));
       }
-
-      
 
       return RequestResult(true, value: quizzes);
     } catch(e) {
