@@ -84,4 +84,8 @@ class QuizViewModel extends ChangeNotifier {
   void exitQuiz() {
     _eventsSubject.add(QuizViewModelEvents.quizExit);
   }
+
+  void saveToFirebase() async {
+    //TODO
+  }
 }
